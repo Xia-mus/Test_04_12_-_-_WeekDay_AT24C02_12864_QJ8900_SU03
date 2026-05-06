@@ -1,0 +1,55 @@
+C51 COMPILER V9.57.0.0   DS18B20                                                           05/06/2026 19:51:25 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE DS18B20
+OBJECT MODULE PLACED IN .\Objects\DS18B20.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE DS18B20.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\D
+                    -S18B20.lst) TABS(2) OBJECT(.\Objects\DS18B20.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "OneWire.h"
+   3          
+   4          // DS18B20 指令宏定义
+   5          #define DS18B20_SKIP_ROM      0xCC      // 跳过ROM寻址指令（用于单设备或广播）
+   6          #define DS18B20_CONVERT_T     0x44      // 开始温度转换指令
+   7          #define DS18B20_READ_SCRATCHPAD   0xBE  // 读取暂存器指令
+   8          
+   9          //启动DS18B20进行温度转换
+  10          void DS18B20_ConvertT(void)
+  11          {
+  12   1        OneWire_Init();                       // 初始化单总线（复位+存在检测）
+  13   1        OneWire_SendByte(DS18B20_SKIP_ROM);   // 发送跳过ROM指令（针对单个传感器）
+  14   1        OneWire_SendByte(DS18B20_CONVERT_T);  // 发送开始温度转换指令
+  15   1      }
+  16          
+  17          //从DS18B20读取温度值
+  18          float DS18B20_ReadT(void)
+  19          {
+  20   1        unsigned char TLSB,TMSB;              // 存放温度值的低字节和高字节
+  21   1        int Temp;                             // 组合后的16位温度数据
+  22   1        float T;                              // 最终的温度值（摄氏度）
+  23   1        OneWire_Init();                       // 初始化单总线
+  24   1        OneWire_SendByte(DS18B20_SKIP_ROM);   // 发送跳过ROM指令
+  25   1        OneWire_SendByte(DS18B20_READ_SCRATCHPAD);// 发送读取暂存器指令
+  26   1        TLSB=OneWire_ReceiveByte();           // 读取温度低字节（LSB）
+  27   1        TMSB=OneWire_ReceiveByte();           // 读取温度高字节（MSB）
+  28   1        Temp=(TMSB<<8)|TLSB;                  // 将两个字节组合成16位温度数据
+  29   1        T=Temp/16.0;                          // 将原始数据转换为实际温度值（DS18B20精度为0.0625°C/位）
+  30   1        return T;
+  31   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     56    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

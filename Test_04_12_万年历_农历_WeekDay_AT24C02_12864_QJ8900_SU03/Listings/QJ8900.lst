@@ -1,0 +1,88 @@
+C51 COMPILER V9.57.0.0   QJ8900                                                            05/06/2026 19:51:26 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE QJ8900
+OBJECT MODULE PLACED IN .\Objects\QJ8900.obj
+COMPILER INVOKED BY: D:\Keil_v5\C51\BIN\C51.EXE QJ8900.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\QJ
+                    -8900.lst) TABS(2) OBJECT(.\Objects\QJ8900.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "QJ8900.H"
+   3          
+   4          void Delay1us(int T)
+   5          {
+   6   1          T = T - 70;
+   7   1          do{;}
+   8   1          while(T--);
+   9   1      }
+  10          
+  11          void QJ8900_SetVolume(unsigned char volume)
+  12          {
+  13   1        if(volume > 3) volume = 0X03;
+  14   1        SendData(0x0a);
+  15   1        SendData(volume); 
+  16   1        SendData(0x00); 
+  17   1        SendData(0x0c); 
+  18   1      }
+  19          
+  20          void QJ8900_PlayOneTrack(unsigned char track)
+  21          {
+  22   1         SendData(0x0a); 
+  23   1         SendData(track); 
+  24   1         SendData(0x0b);
+  25   1      }
+  26          
+  27          void QJ8900_PlayTrack(unsigned char track)
+  28          {
+  29   1         SendData(0x0a);
+  30   1         SendData(track / 10);
+  31   1         SendData(track % 10);
+  32   1         SendData(0x0b);
+  33   1      }
+  34          
+  35          void SendData(unsigned char Addr)
+  36          {
+  37   1          unsigned char i;
+  38   1          EA = 0;
+  39   1          SDA = 1;
+  40   1          Delay1us(1000);
+  41   1          SDA = 0;
+  42   1          Delay1us(2200);
+  43   1          for ( i = 0; i < 8; i++ )
+  44   1          {
+  45   2            SDA = 1;
+  46   2            if ( Addr & 0x01 )
+  47   2            {
+  48   3                Delay1us(500);
+  49   3                SDA = 0;
+  50   3                Delay1us(210);
+  51   3            }
+  52   2            else
+  53   2            {
+  54   3                Delay1us(210);
+C51 COMPILER V9.57.0.0   QJ8900                                                            05/06/2026 19:51:26 PAGE 2   
+
+  55   3                SDA = 0;
+  56   3                Delay1us(500);
+  57   3            }
+  58   2            Addr >>= 1;
+  59   2          }
+  60   1          SDA = 1;
+  61   1          EA = 1;
+  62   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    175    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
